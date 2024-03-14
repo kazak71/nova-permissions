@@ -4,6 +4,7 @@ namespace Sereny\NovaPermissions\Policies;
 
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Database\Eloquent\Model;
+use App\User;
 
 class BasePolicy {
 
@@ -22,7 +23,7 @@ class BasePolicy {
      */
     public function create(Model $user)
     {
-        return $this->hasPermissionTo($user, 'create');
+        return false;
     }
 
     /**
@@ -34,7 +35,7 @@ class BasePolicy {
      */
     public function delete(Model $user, $model)
     {
-        return $this->hasPermissionTo($user, 'delete');
+        return false;
     }
 
     /**
@@ -44,22 +45,6 @@ class BasePolicy {
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @return mixed
      */
-    public function forceDelete(Model $user, $model)
-    {
-        return $this->hasPermissionTo($user, 'forceDelete');
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model $user
-     * @param  \Illuminate\Database\Eloquent\Model $model
-     * @return mixed
-     */
-    public function restore(Model $user, $model)
-    {
-        return $this->hasPermissionTo($user, 'restore');
-    }
 
     /**
      * Determine whether the user can update the model.
@@ -70,7 +55,8 @@ class BasePolicy {
      */
     public function update(Model $user, $model)
     {
-        return $this->hasPermissionTo($user, 'update');
+        return auth()->user()->id == 1;
+        // return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -82,7 +68,7 @@ class BasePolicy {
      */
     public function view(Model $user, $model)
     {
-        return $this->hasPermissionTo($user, 'view');
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -92,29 +78,7 @@ class BasePolicy {
      */
     public function viewAny(Model $user)
     {
-        return $this->hasPermissionTo($user, 'viewAny');
+        return auth()->user()->hasRole('admin');
     }
 
-    /**
-     * Build permission name
-     *
-     * @param string $name
-     * @return string
-     */
-    protected function buildPermission(string $name)
-    {
-        return $name . ucfirst($this->key);
-    }
-
-    /**
-     * Checks if user has permission
-     *
-     * @param \Illuminate\Database\Eloquent\Model $user
-     * @return bool
-     */
-    protected function hasPermissionTo($user, $permission)
-    {
-        return (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) 
-            || $user->hasPermissionTo($this->buildPermission($permission));
-    }
 }
